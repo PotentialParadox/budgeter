@@ -1,6 +1,3 @@
-module Main where
+import Budget.Budgeter
 
-import Lib
-
-main :: IO ()
-main = someFunc
+main = interact budgeter

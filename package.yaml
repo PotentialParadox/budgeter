@@ -2,9 +2,9 @@ name:                budgeter
 version:             0.1.0.0
 github:              "githubuser/budgeter"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+author:              "Dustin Tracy"
+maintainer:          "dtracy.uf@gmail.com"
+copyright:           "2018 Dustin Tracy"
 
 extra-source-files:
 - README.md
@@ -21,6 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- parsec
+- currencies
+- hmatrix
 
 library:
   source-dirs: src
