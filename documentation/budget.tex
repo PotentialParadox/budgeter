@@ -1,0 +1,247 @@
+% Created 2018-11-20 Tue 17:34
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{dustin}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={dustin},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.3.2 (Org mode 9.1.7)}, 
+ pdflang={English}}
+\begin{document}
+
+\section*{Budgeter}
+This program is designed to provide the user with an optimized budget for the
+items given. The user should provide a list of items in the form
+\begin{center}
+\begin{tabular}{ccccc}
+Item Name & Importance & Min cost & Max cost & Needed\\
+"String" & 1-10 & >0 & > Min cost & True/False\\
+\end{tabular}
+\end{center}
+As well as a the number of year until retirement and the total saved and or
+owed.
+The algorithm will find the budget allocation that will maximize total value
+\begin{align*}
+  V_t = \sum_i V_i
+\end{align*}
+where each value \(V\) is determined by the function.
+% \begin{align*}
+%   V = -\frac{I}{10} \left( \frac{1}{k(x-m)+0.1} + 10 \right)
+% \end{align*}
+\begin{align*}
+  V &= -I((k(x-max))^2-1) \\
+  V &= -I(k(x-max))^2-I \\
+  V &= -Ik^2(x-max)^2-I \\
+  V &= -Ik^2(x^2-2(max)x+(max)^2)-I \\
+  V &= -Ik^2x^2+2Ik^2(max)x-Ik^2(max)^2-I \\
+\end{align*}
+Where x is the price, I is the importance of the item given by the user,
+\(k=\frac{1}{max-min}\), and \(m\) is the maximum price. The derivative in
+regard to price is therefore
+\begin{align*}
+  \frac{dV}{dx} &= -2Ik^2x^2 + 2Ik^2(max)
+\end{align*}
+The restriction would be
+\begin{align*}
+  Income &= \sum_i x_i
+\end{align*}
+The solution of which can be found using the method of langrange multipliers
+\begin{align*}
+  \mathcal{L} &= f(\vec{x}) - \lambda(g(\vec{x} - b)
+\end{align*}
+Assuming I only have two costs
+\begin{align*}
+  Income &= x_1 + x_2 = g(x_1,x_2) = b
+\end{align*}
+and
+\begin{align*}
+  V_t &= V_1 + V_2
+\end{align*}
+At the critical points
+\begin{align*}
+  \nabla \mathcal{L} &= 0
+\end{align*}
+Which would lead to a set of linear equations
+\begin{align*}
+  -2Ik_1^2x_1 + 2Ik_1^2(max_1) &= \lambda \\ 
+  -2Ik_2^2x_2 + 2Ik_2^2(min_2) &= \lambda \\ 
+  x_1 + x_2 &= X_{total}
+\end{align*}
+which can be simplified to
+\begin{align*}
+  -2I_1k_1^2x_1 - \lambda &=  -2I_1k_1^2(max_1)\\ 
+  -2I_2k_2^2x_2 - \lambda &=  -2I_2k_2^2(max_2) \\ 
+  x_1 + x_2 &= X_{total}
+\end{align*}
+Which corresponds to the linear equation
+\begin{equation}
+\begin{bmatrix}
+  -2I_1k_1^2 & 0 & -1\\
+  0 & -2I_2k_2^2 & -1\\
+  1 & 1 & 0\\
+\end{bmatrix}
+\begin{bmatrix}
+  x_1 \\ x_2 \\ \lambda
+\end{bmatrix}
+=
+\begin{bmatrix}
+  -2I_1k_1^2(max_1) \\ -2I_2k_2^2(max_2) \\ X_{total}
+\end{bmatrix}
+\end{equation}
+The solution for this equation is easily found and which can easily be
+generalized.
+\\
+Note that an item may be such a bad deal, that the algorithm gives its value a negative
+number. Of course you can't have a negative number so the item(s) will be
+temporarily removed and the algorithm ran again.  The items will later be added
+to final result but with their value over needed set to 0.
+\newpage
+\subsection*{Test Case Without Savings}
+Lets assume we have two items
+\begin{itemize}
+\item ``efficient'' 10 0 1000 1
+\item ``average 5 0 3000 1
+\item ``inefficient'' 1 0 5000 1
+\end{itemize}
+We have a total cost of 4000.
+Lets calculate our $k's$
+\begin{align*}
+  k_1 &= 0.001 \\
+  k_2 &= 3.33e-4 \\
+  k_3 &= 2e-4
+\end{align*}
+Our equation should then look like
+\begin{equation}
+\begin{bmatrix}
+  -2(10)(0.001)^2 & 0 & 0 & -1\\
+  0 & -2(5)(3.33e-4)^2 & 0 & -1\\
+  0 & 0 & -2(10)(2e-4)^2 & -1\\
+  1 & 1 & 1 & 0\\
+\end{bmatrix}
+\begin{bmatrix}
+  x_1 \\ x_2 \\ \lambda
+\end{bmatrix}
+=
+\begin{bmatrix}
+  -2(10)(0.001)^2(1000) \\ -2(5)(3.33e-4)^2(3000) \\ -2(1)(2e-4)^2(5000) \\4000
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}
+\begin{bmatrix}
+  -2e-5 & 0 & 0 & -1\\
+  0 & -1.1e-6 & 0 & -1\\
+  0 & 0 & -8e-7 & -1\\
+  1 & 1 & 1 & 0\\
+\end{bmatrix}
+\begin{bmatrix}
+  x_1 \\ x_2 \\ x_3 \\ \lambda
+\end{bmatrix}
+=
+\begin{bmatrix}
+  -0.02 \\ -3.32e-3 \\ -4e^-4 \\ 4000
+\end{bmatrix}
+\end{equation}
+Answer = [989,2804,206], Yay!
+
+\subsection*{Special treatment for needed}
+If an object is ``needed'' then the minimum value of the budget item should be
+removed for income, and the min and max should be set to
+\begin{align*}
+  min &= 0 \\
+  max &= max-min
+\end{align*}
+The $min$s should be added the vector outputted by calculatebudget
+
+\newpage
+\subsection*{Determining Savings}
+The primary goal of this calculation is to assure that at retirement that you
+can survive while paying your current costs. This will happen when you are able
+to live off the interest of your investment. For this to workout, the future
+value of your savings/debt + savings/year need to be equal to the (costs/year)/apr
+The future value can calculated for each future year taking the 
+
+\begin{align*}
+  V_1 = V_0(1+r) + S
+\end{align*}
+Where $V_1$ is the current value of savings in year 1, $V_0$ is the value of the savings
+year 0 and $S$ is the savings over the year, and $r$ is the annual interest rate.
+
+
+\subsection*{Choosing importance}
+Importance should be scored either in range from 1-10 or from 1-100. A good rule
+of thumb is that the score should roughly equal to the percentage of your time
+that the effects of the item \textbf{linger} throughout your life. Lets do a few
+examples, I will use a scale from 1-10
+\subsubsection*{Food}
+You may spend anywhere from $30\,min$ to $2\,hr$ eating food throughout the day
+which means would mean that you would score it a 1 if I didn't include the word
+linger. Though you don't spend a lot of time eating, the nutritional effects of
+the food you eat will stay with you the entire day, $100\%$ of your life. While
+the ``feel good'' effect of a delicious meal will last a few hours after you
+eat. We can divide food into two subsections with their importance values: taste=5, nutrition=10.
+Nutrition can be treated as a needed primary price, while taste can be treated
+as a premium. A simpler approach would be to average the two numbers to get
+food=8, and set a price range appropriate for delicious healthy food.
+\subsubsection*{Transportation}
+Similar to food, transportation can be separated into a few categories:
+Reliability, Convenience, and Status. Reliability affects my entire life and I
+would thus score it a 10. Convenience features only affects me while I drive, or
+about and hour a day, so I'll score it a 1. Status, for me, will only affect me
+in extremely rare occasions, so it'll also give me a 1. Note that I'm married.
+For those looking for a partner, the status may possibly get more weight since
+the likelihood of the affects could linger increases. Since the importance of
+reliability so dramatically surpasses the other considerations, I'll only
+consider it during my purchase. Transport:10, min-max based on reliability.
+\subsubsection*{Phone}
+I'll split the phone into parts: Coverage, Features, and Status.
+I give coverage a score of 5, since it's usually not a big deal if I loose
+signal while traveling, since I'm usually with others. Features gets a 10, since
+I need access to email, text messages, video phone calls, and navigation, for
+work. Status receives a 1 for reasons already discussed. Nearly all phones have
+good coverage, so my focus will only be on the available features and status.
+Status is often cheap with phones on a per/month basis compared to your other costs.
+\subsubsection*{Housing}
+This has three major parts: Location, size, and status. Location will get a 10,
+since it will affect your entire life: education for your kids, commute to work,
+neighbors, nearby restaurants etc. The size of the house would get a 5, since I
+spend roughly half my time inside my house, while status once again would get a 1.
+
+My input would thus look something like this
+\begin{center}
+\begin{tabular}{lcccc}
+  After-Tax Monthly Income= 1750 &&&&\\
+  Saved/Owed= 5000 &&&&\\
+  Years till retirement= 25 &&&&\\
+  APR = 0.05 &&&&\\
+  Item Name & Importance & Min cost & Max cost & Needed\\
+  Food(Nutrition) & 10 & 200 & 500 & 1 \\
+  Food(Taste) & 5 & 0 & 200 & 0 \\
+  Transportation(Reliability) & 10 & 250 & 400 & 1 \\
+  Transportation(Status) & 1 & 0 & 500 & 1 \\
+  Phone(Features) & 10 & 90 & 120 & 1 \\
+  Phone(Status) & 1 & 0 & 30 & 0 \\
+  Housing(Location) & 10 & 400 & 1200 & 1 \\
+  Housing(Size) & 5 & 0 & 4000 & 0 \\
+  Housing(Status) & 1 & 0 & 2000 & 0 \\
+\end{tabular}
+\end{center}
+\end{document}
